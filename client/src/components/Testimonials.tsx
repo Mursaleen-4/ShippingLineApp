@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Quote, Star, ChevronLeft, ChevronRight, Building2, MapPin } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface Testimonial {
   id: number;
@@ -60,40 +61,30 @@ const Testimonials: React.FC = () => {
     }
   ];
 
-  const nextTestimonial = () => {
-    setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
-  };
+  const nextTestimonial = () => setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+  const prevTestimonial = () => setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  const goToTestimonial = (index: number) => setCurrentTestimonial(index);
 
-  const prevTestimonial = () => {
-    setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
-  };
-
-  const goToTestimonial = (index: number) => {
-    setCurrentTestimonial(index);
-  };
-
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, index) => (
-      <Star
-        key={index}
-        className={`w-5 h-5 ${index < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
-      />
+  const renderStars = (rating: number) =>
+    Array.from({ length: 5 }, (_, index) => (
+      <Star key={index} className={`w-5 h-5 ${index < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
     ));
-  };
 
   return (
     <section className="py-20 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-0 left-0 w-full h-full bg-repeat" 
-             style={{
-               backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000' fill-opacity='1'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-               backgroundSize: '60px 60px'
-             }}
+        <div
+          className="absolute top-0 left-0 w-full h-full bg-repeat"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000' fill-opacity='1'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundSize: '60px 60px'
+          }}
         />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Section Header */}
         <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 30 }}
@@ -105,9 +96,7 @@ const Testimonials: React.FC = () => {
               <Quote className="w-8 h-8 text-primary-600" />
             </div>
           </div>
-          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-            Client Testimonials
-          </h2>
+          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">Client Testimonials</h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Hear from our valued clients about their experience with our maritime and logistics services
           </p>
@@ -155,12 +144,8 @@ const Testimonials: React.FC = () => {
                           />
                         </div>
                         <div className="ml-4">
-                          <div className="font-bold text-gray-900 text-lg">
-                            {testimonials[currentTestimonial].author}
-                          </div>
-                          <div className="text-primary-600 font-medium">
-                            {testimonials[currentTestimonial].position}
-                          </div>
+                          <div className="font-bold text-gray-900 text-lg">{testimonials[currentTestimonial].author}</div>
+                          <div className="text-primary-600 font-medium">{testimonials[currentTestimonial].position}</div>
                         </div>
                       </div>
                     </div>
@@ -174,9 +159,7 @@ const Testimonials: React.FC = () => {
                           <Building2 className="w-8 h-8 text-primary-600" />
                         </div>
                       </div>
-                      <h3 className="font-bold text-gray-900 text-lg mb-2">
-                        {testimonials[currentTestimonial].company}
-                      </h3>
+                      <h3 className="font-bold text-gray-900 text-lg mb-2">{testimonials[currentTestimonial].company}</h3>
                       <div className="flex items-center justify-center lg:justify-start text-gray-600">
                         <MapPin className="w-4 h-4 mr-1" />
                         <span className="text-sm">{testimonials[currentTestimonial].location}</span>
@@ -211,41 +194,26 @@ const Testimonials: React.FC = () => {
               key={index}
               onClick={() => goToTestimonial(index)}
               className={`h-3 rounded-full transition-all duration-300 ${
-                index === currentTestimonial
-                  ? 'bg-primary-600 w-8'
-                  : 'bg-gray-300 hover:bg-gray-400 w-3'
+                index === currentTestimonial ? 'bg-primary-600 w-8' : 'bg-gray-300 hover:bg-gray-400 w-3'
               }`}
             />
           ))}
         </div>
 
         {/* Call to Action */}
-        <motion.div
-          className="text-center mt-16"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          <p className="text-lg text-gray-600 mb-6">
-            Ready to experience our exceptional service?
-          </p>
+        <motion.div className="text-center mt-16" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }}>
+          <p className="text-lg text-gray-600 mb-6">Ready to experience our exceptional service?</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <motion.a
-              href="/contact"
-              className="btn btn-primary btn-lg px-8 py-3 inline-flex items-center justify-center"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Get Started Today
-            </motion.a>
-            <motion.a
-              href="/services"
-              className="btn btn-secondary btn-lg px-8 py-3 inline-flex items-center justify-center"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              View Our Services
-            </motion.a>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link to="/contact" className="btn btn-primary btn-lg px-8 py-3 inline-flex items-center justify-center">
+                Get Started Today
+              </Link>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link to="/services" className="btn btn-secondary btn-lg px-8 py-3 inline-flex items-center justify-center">
+                View Our Services
+              </Link>
+            </motion.div>
           </div>
         </motion.div>
       </div>
