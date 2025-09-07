@@ -1,12 +1,11 @@
 import express from 'express';
-import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 
 // Import middleware
-import { corsOptions, helmetOptions, generalRateLimit, securityHeaders, requestLogger } from './middleware/security';
+import { applyCors, helmetOptions, generalRateLimit, securityHeaders, requestLogger } from './middleware/security';
 import { errorHandler, notFoundHandler } from './middleware/error';
 
 // Import routes
@@ -22,36 +21,36 @@ const app = express();
 // Trust proxy in production (for correct IP addresses behind reverse proxy)
 app.set('trust proxy', 1);
 
-// Security middleware
+// --- Security Middleware ---
 app.use(helmet(helmetOptions));
 app.use(securityHeaders);
 
-// CORS middleware
-app.use(cors(corsOptions));
+// --- CORS Middleware ---
+applyCors(app); // handles OPTIONS preflight and allowed origins
 
-// Request parsing middleware
+// --- Request Parsing ---
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
-// Compression middleware
+// --- Compression Middleware ---
 app.use(compression());
 
-// Rate limiting
+// --- Rate Limiting ---
 app.use(generalRateLimit);
 
-// Logging middleware
+// --- Logging Middleware ---
 if (isDevelopment) {
   app.use(morgan('combined'));
 }
 app.use(requestLogger);
 
-// API Routes
+// --- API Routes ---
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/vessels', vesselRoutes);
 
-// Root endpoint
+// --- Root Endpoint ---
 app.get('/', (req, res) => {
   res.json({
     message: 'Shipping Line API',
@@ -62,7 +61,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// API info endpoint
+// --- API Info Endpoint ---
 app.get('/api', (req, res) => {
   res.json({
     name: 'Shipping Line API',
@@ -104,10 +103,10 @@ app.get('/api', (req, res) => {
   });
 });
 
-// Handle 404 for undefined routes
+// --- 404 Handler ---
 app.use(notFoundHandler);
 
-// Global error handling middleware (must be last)
+// --- Global Error Handler ---
 app.use(errorHandler);
 
 export default app;
