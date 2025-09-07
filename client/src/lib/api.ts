@@ -16,6 +16,8 @@ import {
 
 // API Configuration
 const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:5000';
+console.log('API_BASE_URL:', API_BASE_URL); // <-- log inside the module
+export default API_BASE_URL;
 
 // Create axios instance with default config
 const createApiInstance = (): AxiosInstance => {
