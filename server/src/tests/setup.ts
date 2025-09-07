@@ -29,7 +29,7 @@ afterEach(async () => {
   // Clear all collections
   for (const key in collections) {
     const collection = collections[key];
-    await collection.deleteMany({});
+    await collection?.deleteMany({});
   }
 });
 
