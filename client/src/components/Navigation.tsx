@@ -1,16 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Ship, 
-  Menu, 
-  X, 
-  LogIn
-} from 'lucide-react';
+import { Ship, Menu, X, LogIn } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 
 const Navigation: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { auth: {  isAuthenticated }, logout } = useAuth();
+  const { auth: { isAuthenticated }, logout } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -23,12 +19,11 @@ const Navigation: React.FC = () => {
 
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50 border-b border-gray-200">
-      {/* Main Navigation */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <a href="/" className="flex items-center">
+            <Link to="/" className="flex items-center">
               <div className="bg-primary-600 p-2 rounded-lg mr-3">
                 <Ship className="h-8 w-8 text-white" />
               </div>
@@ -36,50 +31,16 @@ const Navigation: React.FC = () => {
                 <div className="text-xl font-bold text-gray-900">Yaaseen Shipping Lines</div>
                 <div className="text-xs text-gray-600">United Oriental Steamship Co.</div>
               </div>
-            </a>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-1">
-            {/* Home */}
-            <a
-              href="/"
-              className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium transition-colors"
-            >
-              HOME
-            </a>
-
-            {/* About */}
-            <a
-              href="/about"
-              className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium transition-colors"
-            >
-              ABOUT
-            </a>
-
-            {/* Services */}
-            <a
-              href="/eservices"
-              className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium transition-colors"
-            >
-              SERVICES
-            </a>
-
-            {/* Contact */}
-            <a
-              href="/contact"
-              className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium transition-colors"
-            >
-              CONTACT
-            </a>
-
-            {/* Tracking */}
-            <a
-              href="/tracking"
-              className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium transition-colors"
-            >
-              TRACKING
-            </a>
+            <Link to="/" className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium transition-colors">HOME</Link>
+            <Link to="/about" className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium transition-colors">ABOUT</Link>
+            <Link to="/eservices" className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium transition-colors">SERVICES</Link>
+            <Link to="/contact" className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium transition-colors">CONTACT</Link>
+            <Link to="/tracking" className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium transition-colors">TRACKING</Link>
           </div>
 
           {/* Login/Logout Button */}
@@ -93,13 +54,13 @@ const Navigation: React.FC = () => {
                 LOGOUT
               </button>
             ) : (
-              <a
-                href="/login"
+              <Link
+                to="/login"
                 className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
               >
                 <LogIn className="w-4 h-4 mr-2" />
                 LOGIN
-              </a>
+              </Link>
             )}
           </div>
 
@@ -124,28 +85,18 @@ const Navigation: React.FC = () => {
             transition={{ duration: 0.3 }}
           >
             <div className="px-4 py-6 space-y-4">
-              <a href="/" className="block text-gray-700 hover:text-primary-600 font-medium">
-                HOME
-              </a>
-              <a href="/about" className="block text-gray-700 hover:text-primary-600 font-medium">
-                ABOUT
-              </a>
-              <a href="/eservices" className="block text-gray-700 hover:text-primary-600 font-medium">
-                SERVICES
-              </a>
-              <a href="/contact" className="block text-gray-700 hover:text-primary-600 font-medium">
-                CONTACT
-              </a>
-              <a href="/tracking" className="block text-gray-700 hover:text-primary-600 font-medium">
-                TRACKING
-              </a>
-              
+              <Link to="/" className="block text-gray-700 hover:text-primary-600 font-medium">HOME</Link>
+              <Link to="/about" className="block text-gray-700 hover:text-primary-600 font-medium">ABOUT</Link>
+              <Link to="/eservices" className="block text-gray-700 hover:text-primary-600 font-medium">SERVICES</Link>
+              <Link to="/contact" className="block text-gray-700 hover:text-primary-600 font-medium">CONTACT</Link>
+              <Link to="/tracking" className="block text-gray-700 hover:text-primary-600 font-medium">TRACKING</Link>
+
               <div className="pt-4 border-t border-gray-200 space-y-3">
                 {isAuthenticated ? (
                   <>
-                    <a href="/dashboard" className="flex items-center justify-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors w-full">
+                    <Link to="/dashboard" className="flex items-center justify-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors w-full">
                       Dashboard
-                    </a>
+                    </Link>
                     <button
                       onClick={handleLogout}
                       className="flex items-center justify-center px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors w-full"
@@ -154,9 +105,12 @@ const Navigation: React.FC = () => {
                     </button>
                   </>
                 ) : (
-                  <a href="/login" className="flex items-center justify-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors w-full">
+                  <Link
+                    to="/login"
+                    className="flex items-center justify-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors w-full"
+                  >
                     LOGIN
-                  </a>
+                  </Link>
                 )}
               </div>
             </div>
