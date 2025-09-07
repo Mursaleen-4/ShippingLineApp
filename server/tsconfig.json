@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "CommonJS",
-    "lib": ["ES2022"],
+    "lib": ["ES2022", "DOM"],
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
@@ -33,11 +33,17 @@
       "@/routes/*": ["./routes/*"],
       "@/schemas/*": ["./schemas/*"],
       "@/utils/*": ["./utils/*"]
-    },
-    "types": ["node"]  // Explicitly include Node types to avoid Render TS errors
+    }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "src/**/*.test.ts", "src/**/*.spec.ts"],
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts"
+  ],
   "ts-node": {
     "require": ["tsconfig-paths/register"]
   }
