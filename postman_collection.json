@@ -1,0 +1,384 @@
+{
+  "info": {
+    "name": "Shipping Line API",
+    "description": "Complete API collection for the Shipping Line Management System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{auth_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Health Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health"]
+            },
+            "description": "Check API health status"
+          }
+        },
+        {
+          "name": "Readiness Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health/ready",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health", "ready"]
+            }
+          }
+        },
+        {
+          "name": "Liveness Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health/live",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health", "live"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.globals.set('auth_token', response.token || '');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"admin\",\n  \"password\": \"AdminPass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login with admin credentials"
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "Get current authenticated user"
+          }
+        },
+        {
+          "name": "Check Auth Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/check",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "check"]
+            },
+            "description": "Check authentication status"
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "refresh"]
+            },
+            "description": "Refresh JWT token"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Logout and clear token"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vessels",
+      "item": [
+        {
+          "name": "List Vessels",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/vessels?page=1&limit=10&sort=-createdAt",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vessels"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "-createdAt"
+                }
+              ]
+            },
+            "description": "Get all vessels with pagination"
+          }
+        },
+        {
+          "name": "Search Vessels",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/vessels?q=MSC&page=1&limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vessels"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "MSC"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Search vessels by text"
+          }
+        },
+        {
+          "name": "Filter Vessels by Country",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/vessels?country=Panama&sort=vesselName",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vessels"],
+              "query": [
+                {
+                  "key": "country",
+                  "value": "Panama"
+                },
+                {
+                  "key": "sort",
+                  "value": "vesselName"
+                }
+              ]
+            },
+            "description": "Filter vessels by country"
+          }
+        },
+        {
+          "name": "Create Vessel",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.globals.set('vessel_id', response.vessel._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vesselName\": \"TEST VESSEL\",\n  \"voyageNo\": \"TEST001\",\n  \"country\": \"Test Country\",\n  \"portName\": \"Test Port\",\n  \"ETA\": \"2024-06-01T10:00:00Z\",\n  \"ETD\": \"2024-06-03T16:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/vessels",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vessels"]
+            },
+            "description": "Create a new vessel"
+          }
+        },
+        {
+          "name": "Get Vessel by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/vessels/{{vessel_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vessels", "{{vessel_id}}"]
+            },
+            "description": "Get specific vessel by ID"
+          }
+        },
+        {
+          "name": "Update Vessel",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vesselName\": \"UPDATED TEST VESSEL\",\n  \"portName\": \"Updated Test Port\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/vessels/{{vessel_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vessels", "{{vessel_id}}"]
+            },
+            "description": "Update existing vessel"
+          }
+        },
+        {
+          "name": "Get Vessel Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/vessels/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vessels", "stats"]
+            },
+            "description": "Get vessel dashboard statistics"
+          }
+        },
+        {
+          "name": "Delete Vessel",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/vessels/{{vessel_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vessels", "{{vessel_id}}"]
+            },
+            "description": "Delete vessel by ID"
+          }
+        },
+        {
+          "name": "Bulk Delete Vessels (Admin Only)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ids\": [\"vessel_id_1\", \"vessel_id_2\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/vessels/bulk",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vessels", "bulk"]
+            },
+            "description": "Bulk delete vessels (admin only)"
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-set bearer token if available",
+          "const token = pm.globals.get('auth_token');",
+          "if (token) {",
+          "    pm.request.headers.add({",
+          "        key: 'Authorization',",
+          "        value: `Bearer ${token}`",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ]
+}
