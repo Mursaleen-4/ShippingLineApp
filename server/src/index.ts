@@ -7,17 +7,20 @@ async function startServer() {
     // Connect to MongoDB
     await connectDB();
 
+    // Use Render's assigned PORT or fallback for local dev
+    const PORT = process.env.PORT || env.PORT || 5000;
+
     // Start the server
-    const server = app.listen(env.PORT, () => {
+    const server = app.listen(PORT, () => {
       console.log(`
 🚢 ========================================
    Shipping Line API Server Started
 🚢 ========================================
 📍 Environment: ${env.NODE_ENV}
-🌐 Server URL: http://localhost:${env.PORT}
-📊 API Docs: http://localhost:${env.PORT}/api
-❤️ Health Check: http://localhost:${env.PORT}/api/health
-🔐 CORS Origin: ${env.CORS_ORIGIN || `http://localhost:${env.CLIENT_PORT}`}
+🌐 Server URL: http://localhost:${PORT}
+📊 API Docs: http://localhost:${PORT}/api
+❤️ Health Check: http://localhost:${PORT}/api/health
+🔐 CORS Origin: ${env.CORS_ORIGIN}
 ⚡ Ready to handle requests!
 ========================================
       `);
@@ -25,14 +28,13 @@ async function startServer() {
 
     // Graceful shutdown handling
     const gracefulShutdown = async (signal: string) => {
-      console.log(`\n🛑 Received ${signal}. Starting graceful shutdown...`);
+      console.log(`\n🛑 Received \${signal}. Starting graceful shutdown...`);
       
       server.close(async () => {
         console.log('📴 HTTP server closed');
         
         // Close database connections
         try {
-          // MongoDB connection will be closed by the db module
           console.log('🔌 Database connections closed');
           process.exit(0);
         } catch (error) {
@@ -55,7 +57,6 @@ async function startServer() {
     // Handle unhandled promise rejections
     process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
       console.error('🚨 Unhandled Rejection at:', promise, 'reason:', reason);
-      // Close server & exit process
       gracefulShutdown('unhandledRejection');
     });
 
