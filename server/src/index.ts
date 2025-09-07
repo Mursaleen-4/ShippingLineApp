@@ -16,33 +16,33 @@ async function startServer() {
 🚢 ========================================
    Shipping Line API Server Started
 🚢 ========================================
-📍 Environment: ${env.NODE_ENV}
-🌐 Server URL: http://localhost:${PORT}
-📊 API Docs: http://localhost:${PORT}/api
-❤️ Health Check: http://localhost:${PORT}/api/health
+📍 Environment: ${env.NODE_ENV || 'production'}
+🌐 Server URL: ${process.env.NODE_ENV === 'production' ? `https://${env.CORS_ORIGIN}` : `http://localhost:${PORT}`}
+📊 API Docs: ${process.env.NODE_ENV === 'production' ? `https://${env.CORS_ORIGIN}/api` : `http://localhost:${PORT}/api`}
+❤️ Health Check: ${process.env.NODE_ENV === 'production' ? `https://${env.CORS_ORIGIN}/api/health` : `http://localhost:${PORT}/api/health`}
 🔐 CORS Origin: ${env.CORS_ORIGIN}
 ⚡ Ready to handle requests!
 ========================================
       `);
     });
 
-    // Graceful shutdown handling
+    // Graceful shutdown
     const gracefulShutdown = async (signal: string) => {
-      console.log(`\n🛑 Received \${signal}. Starting graceful shutdown...`);
+      console.log(`\n🛑 Received ${signal}. Starting graceful shutdown...`);
       
       server.close(async () => {
         console.log('📴 HTTP server closed');
         
-        // Close database connections
         try {
-          console.log('🔌 Database connections closed');
+          console.log('🔌 Closing database connections...');
+          // Here you can add code if you need to close MongoDB explicitly
           process.exit(0);
         } catch (error) {
           console.error('❌ Error during database shutdown:', error);
           process.exit(1);
         }
       });
-      
+
       // Force shutdown after 30 seconds
       setTimeout(() => {
         console.error('💥 Forced shutdown after 30 seconds');
