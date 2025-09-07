@@ -34,7 +34,7 @@
       "@/schemas/*": ["./schemas/*"],
       "@/utils/*": ["./utils/*"]
     },
-    "types": ["node", "express", "cors", "compression", "cookie-parser", "morgan", "bcrypt", "jsonwebtoken"]
+    "types": ["node"]  // Explicitly include Node types to avoid Render TS errors
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "src/**/*.test.ts", "src/**/*.spec.ts"],
