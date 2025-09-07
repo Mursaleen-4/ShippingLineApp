@@ -5,43 +5,53 @@ import helmet from 'helmet';
 import { env, isDevelopment } from '../config/env';
 
 /**
- * CORS configuration
+ * Allowed origins
+ */
+const allowedOrigins = [
+  `http://localhost:${env.CLIENT_PORT}`,
+  `http://127.0.0.1:${env.CLIENT_PORT}`,
+  'http://localhost:3000', // React dev
+  'http://localhost:5173', // Vite default
+  'http://localhost:5174', // Vite alternative
+];
+
+// Add production frontend URL if set
+if (env.CORS_ORIGIN) {
+  allowedOrigins.push(env.CORS_ORIGIN);
+}
+
+/**
+ * CORS middleware
  */
 export const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, Postman, etc.)
+    // Allow requests with no origin (Postman, server-to-server, mobile apps)
     if (!origin) return callback(null, true);
 
-    const allowedOrigins = [
-      `http://localhost:${env.CLIENT_PORT}`,
-      `http://127.0.0.1:${env.CLIENT_PORT}`,
-      'http://localhost:3000', // Common React dev port
-      'http://localhost:5173', // Vite default port
-      'http://localhost:5174', // Vite alternative port
-    ];
-
-    // In production, use environment variable or specific domain
-    if (env.CORS_ORIGIN) {
-      allowedOrigins.push(env.CORS_ORIGIN);
-    }
-
+    // If origin is allowed, permit request
     if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+      return callback(null, true);
     }
+
+    // Reject unauthorized origins (do not throw Error)
+    return callback(null, false);
   },
-  credentials: true, // Allow cookies
-  optionsSuccessStatus: 200, // Some legacy browsers choke on 204
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
-    'Origin',
-    'X-Requested-With',
-    'Content-Type',
-    'Accept',
-    'Authorization',
-    'Cache-Control',
+    'Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization', 'Cache-Control'
   ],
+  optionsSuccessStatus: 200, // ensures legacy browsers like IE succeed
+};
+
+/**
+ * Apply CORS globally
+ */
+export const applyCors = (app: any) => {
+  app.use(cors(corsOptions));
+
+  // Ensure OPTIONS requests always succeed
+  app.options('*', cors(corsOptions));
 };
 
 /**
@@ -56,12 +66,9 @@ export const generalRateLimit = rateLimit({
       message: 'Too many requests from this IP, please try again later.',
     },
   },
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  skip: (req) => {
-    // Skip rate limiting in development for easier testing
-    return isDevelopment && req.ip === '127.0.0.1';
-  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => isDevelopment && req.ip === '127.0.0.1',
 });
 
 /**
@@ -78,10 +85,8 @@ export const authRateLimit = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  skipSuccessfulRequests: true, // Don't count successful requests
-  skip: (req) => {
-    return isDevelopment && req.ip === '127.0.0.1';
-  },
+  skipSuccessfulRequests: true,
+  skip: (req) => isDevelopment && req.ip === '127.0.0.1',
 });
 
 /**
@@ -98,9 +103,7 @@ export const apiRateLimit = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => {
-    return isDevelopment && req.ip === '127.0.0.1';
-  },
+  skip: (req) => isDevelopment && req.ip === '127.0.0.1',
 });
 
 /**
@@ -128,7 +131,7 @@ export const helmetOptions: Parameters<typeof helmet>[0] = {
  */
 export const requestSizeLimit = (req: Request, res: Response, next: NextFunction): void => {
   const maxSize = 10 * 1024 * 1024; // 10MB
-  
+
   req.on('data', (chunk: Buffer) => {
     const currentSize = parseInt(req.headers['content-length'] || '0');
     if (currentSize > maxSize) {
@@ -146,16 +149,12 @@ export const requestSizeLimit = (req: Request, res: Response, next: NextFunction
  * Security headers middleware
  */
 export const securityHeaders = (req: Request, res: Response, next: NextFunction): void => {
-  // Remove powered by header
   res.removeHeader('X-Powered-By');
-  
-  // Add security headers
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  
-  // HSTS header for HTTPS
+
   if (req.secure || req.headers['x-forwarded-proto'] === 'https') {
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   }
@@ -168,7 +167,7 @@ export const securityHeaders = (req: Request, res: Response, next: NextFunction)
  */
 export const requestLogger = (req: Request, res: Response, next: NextFunction): void => {
   const start = Date.now();
-  
+
   res.on('finish', () => {
     const duration = Date.now() - start;
     const logData = {
@@ -181,8 +180,7 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction): 
       userAgent: req.headers['user-agent'],
       userId: req.user?.userId,
     };
-    
-    // Log different levels based on status code
+
     if (res.statusCode >= 500) {
       console.error('Server Error:', JSON.stringify(logData));
     } else if (res.statusCode >= 400) {
@@ -191,6 +189,6 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction): 
       console.log('Request:', JSON.stringify(logData));
     }
   });
-  
+
   next();
 };
