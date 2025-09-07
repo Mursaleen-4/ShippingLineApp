@@ -1,3 +1,4 @@
+// src/lib/api.ts
 import axios, { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
 import {
@@ -14,27 +15,29 @@ import {
   ApiError
 } from './types';
 
-// API Configuration
-const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:5000';
-console.log('API_BASE_URL:', API_BASE_URL); // <-- log inside the module
-export default API_BASE_URL;
+// -----------------------------
+// Base URL from Vite env
+// -----------------------------
+export const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:5000';
+console.log('API_BASE_URL:', API_BASE_URL);
 
-// Create axios instance with default config
+// -----------------------------
+// Axios instance
+// -----------------------------
 const createApiInstance = (): AxiosInstance => {
   const instance = axios.create({
     baseURL: `${API_BASE_URL}/api`,
     timeout: 30000,
-    withCredentials: true, // Important for HTTP-only cookies
+    withCredentials: true, // For HTTP-only cookies
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     },
   });
 
-  // Request interceptor
+  // Request interceptor: add timestamp to prevent caching
   instance.interceptors.request.use(
     (config) => {
-      // Add timestamp to prevent caching issues
       config.params = {
         ...config.params,
         _t: Date.now()
@@ -44,17 +47,14 @@ const createApiInstance = (): AxiosInstance => {
     (error) => Promise.reject(error)
   );
 
-  // Response interceptor for error handling
+  // Response interceptor: handle errors globally
   instance.interceptors.response.use(
     (response: AxiosResponse) => response,
     (error: AxiosError) => {
       const apiError = handleApiError(error);
-      
-      // Show error toast for non-401 errors
       if (error.response?.status !== 401) {
         toast.error(apiError.message);
       }
-      
       return Promise.reject(apiError);
     }
   );
@@ -62,7 +62,9 @@ const createApiInstance = (): AxiosInstance => {
   return instance;
 };
 
+// -----------------------------
 // Error handler
+// -----------------------------
 const handleApiError = (error: AxiosError): ApiError => {
   if (error.response?.data) {
     const errorData = error.response.data as any;
@@ -74,209 +76,139 @@ const handleApiError = (error: AxiosError): ApiError => {
   }
 
   if (error.code === 'ECONNABORTED') {
-    return {
-      code: 'TIMEOUT_ERROR',
-      message: 'Request timed out. Please check your connection and try again.'
-    };
+    return { code: 'TIMEOUT_ERROR', message: 'Request timed out. Please check your connection.' };
   }
 
   if (error.code === 'ERR_NETWORK') {
-    return {
-      code: 'NETWORK_ERROR',
-      message: 'Network error. Please check your internet connection.'
-    };
+    return { code: 'NETWORK_ERROR', message: 'Network error. Please check your internet connection.' };
   }
 
-  return {
-    code: 'UNKNOWN_ERROR',
-    message: error.message || 'An unexpected error occurred'
-  };
+  return { code: 'UNKNOWN_ERROR', message: error.message || 'An unexpected error occurred' };
 };
 
-// Create API instance
+// -----------------------------
+// Axios instance
+// -----------------------------
 const api = createApiInstance();
 
-// Authentication API
+// -----------------------------
+// Auth API
+// -----------------------------
 export const authApi = {
-  // Login user
   login: async (credentials: LoginCredentials): Promise<{ user: User }> => {
-    const response = await api.post<ApiResponse<{ user: User }>>('/auth/login', credentials);
-    return (response.data as any).data || response.data;
+    const res = await api.post<ApiResponse<{ user: User }>>('/auth/login', credentials);
+    return res.data.data || res.data;
   },
-
-  // Logout user
   logout: async (): Promise<{ message: string }> => {
-    const response = await api.post<ApiResponse<{ message: string }>>('/auth/logout');
-    return (response.data as any).data || response.data;
+    const res = await api.post<ApiResponse<{ message: string }>>('/auth/logout');
+    return res.data.data || res.data;
   },
-
-  // Get current user
   getMe: async (): Promise<{ user: User }> => {
-    const response = await api.get<ApiResponse<{ user: User }>>('/auth/me');
-    return (response.data as any).data || response.data;
+    const res = await api.get<ApiResponse<{ user: User }>>('/auth/me');
+    return res.data.data || res.data;
   },
-
-  // Refresh token
   refreshToken: async (): Promise<{ user: User }> => {
-    const response = await api.post<ApiResponse<{ user: User }>>('/auth/refresh');
-    return (response.data as any).data || response.data;
+    const res = await api.post<ApiResponse<{ user: User }>>('/auth/refresh');
+    return res.data.data || res.data;
   },
-
-  // Check auth status
   checkAuth: async (): Promise<{ authenticated: boolean; user: User | null }> => {
-    const response = await api.get<ApiResponse<{ authenticated: boolean; user: User | null }>>('/auth/check');
-    return (response.data as any).data || response.data;
+    const res = await api.get<ApiResponse<{ authenticated: boolean; user: User | null }>>('/auth/check');
+    return res.data.data || res.data;
   },
 };
 
+// -----------------------------
 // Vessels API
+// -----------------------------
 export const vesselsApi = {
-  // Get all vessels with filtering and pagination
   getVessels: async (query: VesselQuery = {}): Promise<VesselListResponse> => {
-    const response = await api.get<VesselListResponse>('/vessels', { params: query });
-    return response.data;
+    const res = await api.get<VesselListResponse>('/vessels', { params: query });
+    return res.data;
   },
-
-  // Get single vessel by ID
   getVessel: async (id: string): Promise<{ vessel: Vessel }> => {
-    const response = await api.get<ApiResponse<{ vessel: Vessel }>>(`/vessels/${id}`);
-    return (response.data as any).data || response.data;
+    const res = await api.get<ApiResponse<{ vessel: Vessel }>>(`/vessels/${id}`);
+    return res.data.data || res.data;
   },
-
-  // Create new vessel
   createVessel: async (vessel: CreateVesselInput): Promise<{ vessel: Vessel; message: string }> => {
-    const response = await api.post<ApiResponse<{ vessel: Vessel; message: string }>>('/vessels', vessel);
-    return (response.data as any).data || response.data;
+    const res = await api.post<ApiResponse<{ vessel: Vessel; message: string }>>('/vessels', vessel);
+    return res.data.data || res.data;
   },
-
-  // Update vessel
   updateVessel: async (id: string, updates: UpdateVesselInput): Promise<{ vessel: Vessel; message: string }> => {
-    const response = await api.put<ApiResponse<{ vessel: Vessel; message: string }>>(`/vessels/${id}`, updates);
-    return (response.data as any).data || response.data;
+    const res = await api.put<ApiResponse<{ vessel: Vessel; message: string }>>(`/vessels/${id}`, updates);
+    return res.data.data || res.data;
   },
-
-  // Delete vessel
   deleteVessel: async (id: string): Promise<{ vessel: Vessel; message: string }> => {
-    const response = await api.delete<ApiResponse<{ vessel: Vessel; message: string }>>(`/vessels/${id}`);
-    return (response.data as any).data || response.data;
+    const res = await api.delete<ApiResponse<{ vessel: Vessel; message: string }>>(`/vessels/${id}`);
+    return res.data.data || res.data;
   },
-
-  // Bulk delete vessels (Admin only)
   bulkDelete: async (ids: string[]): Promise<{ deletedCount: number; message: string }> => {
-    const response = await api.delete<ApiResponse<{ deletedCount: number; message: string }>>('/vessels/bulk', { 
-      data: { ids } 
-    });
-    return (response.data as any).data || response.data;
+    const res = await api.delete<ApiResponse<{ deletedCount: number; message: string }>>('/vessels/bulk', { data: { ids } });
+    return res.data.data || res.data;
   },
-
-  // Get vessel statistics
   getStats: async (): Promise<DashboardData> => {
-    const response = await api.get<DashboardData>('/vessels/stats');
-    return response.data;
+    const res = await api.get<DashboardData>('/vessels/stats');
+    return res.data;
   },
 };
 
+// -----------------------------
 // Health API
+// -----------------------------
 export const healthApi = {
-  // Get health status
   getHealth: async (): Promise<HealthStatus> => {
-    const response = await api.get<HealthStatus>('/health');
-    return response.data;
+    const res = await api.get<HealthStatus>('/health');
+    return res.data;
   },
-
-  // Check readiness
   checkReadiness: async (): Promise<{ status: string; message: string }> => {
-    const response = await api.get<{ status: string; message: string }>('/health/ready');
-    return response.data;
+    const res = await api.get<{ status: string; message: string }>('/health/ready');
+    return res.data;
   },
-
-  // Check liveness
   checkLiveness: async (): Promise<{ status: string; message: string }> => {
-    const response = await api.get<{ status: string; message: string }>('/health/live');
-    return response.data;
+    const res = await api.get<{ status: string; message: string }>('/health/live');
+    return res.data;
   },
 };
 
-// Utility functions for API calls
+// -----------------------------
+// Utility functions
+// -----------------------------
 export const apiUtils = {
-  // Generic API call wrapper with loading state
-  withLoading: async <T>(
-    apiCall: () => Promise<T>,
-    setLoading?: (loading: boolean) => void
-  ): Promise<T> => {
+  withLoading: async <T>(apiCall: () => Promise<T>, setLoading?: (loading: boolean) => void): Promise<T> => {
     try {
       setLoading?.(true);
-      const result = await apiCall();
-      return result;
+      return await apiCall();
     } finally {
       setLoading?.(false);
     }
   },
-
-  // Retry API call with exponential backoff
-  retry: async <T>(
-    apiCall: () => Promise<T>,
-    maxRetries: number = 3,
-    baseDelay: number = 1000
-  ): Promise<T> => {
+  retry: async <T>(apiCall: () => Promise<T>, maxRetries: number = 3, baseDelay: number = 1000): Promise<T> => {
     let lastError: any;
-    
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      try {
-        return await apiCall();
-      } catch (error) {
-        lastError = error;
-        
-        if (attempt === maxRetries) {
-          break;
-        }
-        
-        // Exponential backoff
-        const delay = baseDelay * Math.pow(2, attempt);
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
+      try { return await apiCall(); } 
+      catch (error) { lastError = error; if (attempt < maxRetries) await new Promise(res => setTimeout(res, baseDelay * Math.pow(2, attempt))); }
     }
-    
     throw lastError;
   },
-
-  // Cancel request using AbortController
   createCancelableRequest: (signal?: AbortSignal) => {
     const controller = new AbortController();
-    const combinedSignal = signal ? signal : controller.signal;
-    
-    return {
-      signal: combinedSignal,
-      cancel: () => controller.abort(),
-    };
+    return { signal: signal || controller.signal, cancel: () => controller.abort() };
   },
-
-  // Build query string from object
   buildQueryString: (params: Record<string, any>): string => {
     const searchParams = new URLSearchParams();
-    
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        searchParams.append(key, String(value));
-      }
-    });
-    
+    Object.entries(params).forEach(([k, v]) => { if (v != null && v !== '') searchParams.append(k, String(v)); });
     return searchParams.toString();
   },
-
-  // Format API error for display
-  formatError: (error: ApiError): string => {
-    if (error.details && Array.isArray(error.details)) {
-      return error.details.map((d: any) => d.message || d).join(', ');
-    }
-    return error.message;
-  },
+  formatError: (error: ApiError): string => error.details?.map(d => d.message || d).join(', ') || error.message,
 };
 
-// Export default api instance for direct use if needed
+// -----------------------------
+// Export default Axios instance
+// -----------------------------
 export default api;
 
-// Export common status codes for reference
+// -----------------------------
+// Common HTTP Status codes
+// -----------------------------
 export const HTTP_STATUS = {
   OK: 200,
   CREATED: 201,
