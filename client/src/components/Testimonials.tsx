@@ -210,7 +210,7 @@ const Testimonials: React.FC = () => {
               </Link>
             </motion.div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Link to="/services" className="btn btn-secondary btn-lg px-8 py-3 inline-flex items-center justify-center">
+              <Link to="/eservices" className="btn btn-secondary btn-lg px-8 py-3 inline-flex items-center justify-center">
                 View Our Services
               </Link>
             </motion.div>
