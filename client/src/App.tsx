@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AuthProvider } from './lib/auth';
@@ -7,7 +7,7 @@ import { Layout } from './components/Layout';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
-// Lazy load pages for better performance
+// Lazy load pages
 const Home = React.lazy(() => import('./pages/Home'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -21,7 +21,7 @@ const EServiceDetail = React.lazy(() => import('./pages/EServiceDetail'));
 const Tracking = React.lazy(() => import('./pages/Tracking'));
 const VesselDataEntry = React.lazy(() => import('./pages/VesselDataEntry'));
 
-// Loading component for Suspense
+// Loading fallback
 const PageLoader: React.FC = () => (
   <div className="flex items-center justify-center min-h-screen">
     <LoadingSpinner size="lg" message="Loading page..." />
@@ -69,18 +69,8 @@ function App() {
               toastOptions={{
                 duration: 4000,
                 className: 'bg-white border border-gray-200 shadow-lg rounded-lg',
-                success: {
-                  iconTheme: {
-                    primary: '#10b981',
-                    secondary: '#ffffff',
-                  },
-                },
-                error: {
-                  iconTheme: {
-                    primary: '#ef4444',
-                    secondary: '#ffffff',
-                  },
-                },
+                success: { iconTheme: { primary: '#10b981', secondary: '#ffffff' } },
+                error: { iconTheme: { primary: '#ef4444', secondary: '#ffffff' } },
               }}
             />
 
@@ -98,61 +88,61 @@ function App() {
                   />
                   <Route
                     path="/login"
-                    element={(
+                    element={
                       <AnimatedRoute>
                         <Login />
                       </AnimatedRoute>
-                    )}
+                    }
                   />
                   <Route
                     path="/about"
-                    element={(
+                    element={
                       <Layout>
                         <AnimatedRoute>
                           <About />
                         </AnimatedRoute>
                       </Layout>
-                    )}
+                    }
                   />
                   <Route
                     path="/contact"
-                    element={(
+                    element={
                       <Layout>
                         <AnimatedRoute>
                           <Contact />
                         </AnimatedRoute>
                       </Layout>
-                    )}
+                    }
                   />
                   <Route
                     path="/eservices"
-                    element={(
+                    element={
                       <Layout>
                         <AnimatedRoute>
                           <EServices />
                         </AnimatedRoute>
                       </Layout>
-                    )}
+                    }
                   />
                   <Route
                     path="/eservices/:id"
-                    element={(
+                    element={
                       <Layout>
                         <AnimatedRoute>
                           <EServiceDetail />
                         </AnimatedRoute>
                       </Layout>
-                    )}
+                    }
                   />
                   <Route
                     path="/tracking"
-                    element={(
+                    element={
                       <Layout>
                         <AnimatedRoute>
                           <Tracking />
                         </AnimatedRoute>
                       </Layout>
-                    )}
+                    }
                   />
 
                   {/* Protected routes with layout */}
@@ -197,7 +187,7 @@ function App() {
                     }
                   />
 
-                  {/* Redirects */}
+                  {/* Redirect /home to / */}
                   <Route path="/home" element={<Navigate to="/" replace />} />
 
                   {/* 404 fallback */}
