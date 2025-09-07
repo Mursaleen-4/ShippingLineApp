@@ -33,17 +33,11 @@
       "@/routes/*": ["./routes/*"],
       "@/schemas/*": ["./schemas/*"],
       "@/utils/*": ["./utils/*"]
-    }
+    },
+    "types": ["node", "express", "cors", "compression", "cookie-parser", "morgan", "bcrypt", "jsonwebtoken"]
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "src/**/*.test.ts",
-    "src/**/*.spec.ts"
-  ],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "src/**/*.test.ts", "src/**/*.spec.ts"],
   "ts-node": {
     "require": ["tsconfig-paths/register"]
   }
